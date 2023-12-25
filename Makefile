@@ -64,9 +64,17 @@ version: ## display the version of the API server
 .PHONY: db-start
 db-start: ## start the database server
 	@mkdir -p testdata/postgres
-	docker run --rm --name postgres -v $(PWD)/testdata:/testdata \
+	docker run --rm --name contact_list -v $(PWD)/testdata:/testdata \
 		-v $(PWD)/testdata/tmp/app:/var/log/app \
-		-e POSTGRES_PASSWORD=postgres -e POSTGRES_DB=go_restful -d -p 5432:5432 postgres
+		-e POSTGRES_PASSWORD=postgres -e POSTGRES_DB=contact_list -d -p 5432:5432 postgres
+
+.PHONY: db-start-windows
+db-start-windows: ## start the database server for windows
+	@mkdir -p testdata/postgres
+	@docker run --name contact_list -v $(PWD)/testdata:/testdata \
+		-v $(PWD)/testdata/postgres:/var/lib/docker/volumes \
+		-e POSTGRES_PASSWORD=postgres -e POSTGRES_DB=contact_list -d -p 5432:5432 postgres:14
+
 
 .PHONY: db-stop
 db-stop: ## stop the database server
@@ -76,7 +84,7 @@ db-stop: ## stop the database server
 testdata: ## populate the database with test data
 	make migrate-reset
 	@echo "Populating test data..."
-	@docker exec -it postgres psql "$(APP_DSN)" -f /testdata/testdata.sql
+	@docker exec -it contact_list psql "$(APP_DSN)" -f /testdata/testdata.sql
 
 .PHONY: lint
 lint: ## run golint on all Go package
